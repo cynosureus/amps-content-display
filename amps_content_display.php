@@ -134,6 +134,58 @@ class Amps_Content_Display
 
 	}
 
+	function contentBoxHTML($items_per_row, $post_id)
+	{
+
+		ob_start();
+		?>
+			<div class = "col-1-<?=$items_per_row ?> content-single-wrapper <?= get_post_meta($this->material->ID, 'wpcf-thumbnail-orientation', true); ?>">
+
+				<div class = "content content-single-item-inner" >
+											
+					<div class = "media-image" title = "<?= $this->material->post_content; ?>">
+						<center><?= $this->pickDisplayImage($post_id); ?></center>
+					</div>
+					<span class = "material-caption"><p><?= $this->material->post_title; ?></p></span>
+													
+					<span class = "material-obtain">
+						<p>
+
+							
+
+							<span class = "material-file-select">
+								<?= $this->filesDropdown(); ?>
+							</span>
+
+							<span id = "preview-download" class = "preview-download">
+								<span class = "material-preview"><a id = "material-preview-link-<?= $this->material->ID ?>" href = "<?= $this->materialUrl(); ?>" >Preview </a></span>								
+								 |
+								<span class = "material-download"><a id = "material-download-link-<?= $material->ID ?>" href = "<?= $this->materialUrl(); ?>" download = "<?= $this->materialFileName(); ?>">Download</a></span>
+							</span>
+						</p>
+					</span>
+													
+				</div>
+
+			</div>
+
+		<?php
+	
+		$html = ob_get_contents();
+
+		ob_end_clean();
+
+		return $html;
+
+	}
+
+	function displayContentBox($buffer) 
+	{
+
+		d($buffer);
+		return $buffer;
+	}
+
 
 
 
