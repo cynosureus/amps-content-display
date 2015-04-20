@@ -30,14 +30,14 @@ class Amps_Content_Display
 
 			$file_id = $this->get_attachment_id_from_url($media_thumbnail);
 
-			return wp_get_attachment_image($file_id, 'amps-thumb-250-250');
+			return wp_get_attachment_image($file_id);
 
 		} else {
 
 			$product_thumbnail = get_post_meta($post_id, 'wpcf-product-thumbnail', true);
 			$file_id = $this->get_attachment_id_from_url($product_thumbnail);
 
-			return wp_get_attachment_image($file_id, 'amps-thumb-250-250');
+			return wp_get_attachment_image($file_id);
 
 		}
 	}
@@ -70,45 +70,51 @@ class Amps_Content_Display
 	function getAssociatedFiles()
 	{
 		
-		$associated_files = get_post_meta($this->material->ID, 'wpcf-material-file', false);
+		$associated_files = get_post_meta($this->material->ID, 'amps_content_items', true);
 		return $associated_files;
 
 	}
 
-	function returnSelectFormat() 
-	{
-
-		$select_format = array();
-
-		$associated_files = $this->getAssociatedFiles();
-
-		foreach($associated_files as $file) {
-
-
-			$select_format[$file] = $this->getMedia($file)->post_title; 
-
-		}
-
-		return $select_format;
-	}
 
 	function filesDropdown()
 	{
-		$select = '<center><div class = "css-select-moz">';
-		$select .= '<select class = "amps-dropdown file-select" id = "file-select-' . $this->material->ID . '" >';
 
-		$files = $this->returnSelectFormat();
+		ob_start();
 
-		foreach($files as $key => $value) {
+		?>
 
-			$select .= '<option value = ' . $key . '>' . $value . '</option>';
-		}
+		<div class="btn-group">
+	  		<button type="button" class="btn btn-default dropdown-toggle file-select" data-toggle="dropdown" aria-expanded="false" id = "file-select-<?= $this->material->ID ?>">
+	    Select <span class="caret"></span>
+	  		</button>
+	  		<ul class="dropdown-menu" role="menu">
+	    		<?php 
 
-		$select .= '</select>';
-		$select .= '</div></center>';
+	    			$files = $this->getAssociatedFiles();
+	    		
 
 
-		return $select;
+			    	foreach($files as $key=>$value) {
+
+			    	?>
+			   
+
+			    		<li><a href = "<?= $files[$key]['url'] ?>" class = "files-dropdown-item"><?= $files[$key]['caption'] ?></a></li>
+
+			    	<?php } ?>
+	    
+	  		</ul>
+		</div>
+
+<?php 
+
+	$dropdown = ob_get_contents();
+
+	ob_end_clean();
+
+	return $dropdown;
+
+
 
 	}
 
@@ -137,31 +143,33 @@ class Amps_Content_Display
 	function contentBoxHTML($items_per_row, $post_id)
 	{
 
+		$col_size = 12/$items_per_row;
+
 		ob_start();
 		?>
-			<div class = "col-1-<?=$items_per_row ?> content-single-wrapper <?= get_post_meta($this->material->ID, 'wpcf-thumbnail-orientation', true); ?>">
+			<div class = "col-lg-<?= $col_size ?> col-md-<?=$col_size ?> col-sm-<?=$col_size ?> single-wrapper">
 
-				<div class = "content content-single-item-inner" >
+				<div class = "single-item" >
 											
 					<div class = "media-image" title = "<?= $this->material->post_content; ?>">
 						<center><?= $this->pickDisplayImage($post_id); ?></center>
 					</div>
-					<span class = "material-caption"><p><?= $this->material->post_title; ?></p></span>
+					<span class = "material-caption text-center"><p><?= $this->material->post_title; ?></p></span>
 													
 					<span class = "material-obtain">
 						<p>
 
 							
 
-							<span class = "material-file-select">
+							<div class = "material-file-select">
 								<?= $this->filesDropdown(); ?>
-							</span>
+							</div>
 
-							<span id = "preview-download" class = "preview-download">
+							<div id = "preview-download" class = "preview-download text-center">
 								<span class = "material-preview"><a id = "material-preview-link-<?= $this->material->ID ?>" href = "<?= $this->materialUrl(); ?>" >Preview </a></span>								
 								 |
 								<span class = "material-download"><a id = "material-download-link-<?= $material->ID ?>" href = "<?= $this->materialUrl(); ?>" download = "<?= $this->materialFileName(); ?>">Download</a></span>
-							</span>
+							</div>
 						</p>
 					</span>
 													
@@ -182,10 +190,12 @@ class Amps_Content_Display
 	function displayContentBox($buffer) 
 	{
 
-		d($buffer);
+	
 		return $buffer;
 	}
 
+
+	
 
 
 
